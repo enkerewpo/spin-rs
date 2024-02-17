@@ -5,7 +5,7 @@
 
 use crate::{
     atomic::{AtomicBool, Ordering},
-    RelaxStrategy, Spin,
+    RelaxStrategy, Spin, _info
 };
 use core::{
     cell::UnsafeCell,
