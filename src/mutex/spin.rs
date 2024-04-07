@@ -5,7 +5,7 @@
 
 use crate::{
     atomic::{AtomicBool, Ordering},
-    RelaxStrategy, Spin, _info
+    RelaxStrategy, Spin,
 };
 use core::{
     cell::UnsafeCell,
@@ -175,6 +175,7 @@ impl<T: ?Sized, R: RelaxStrategy> SpinMutex<T, R> {
     /// ```
     #[inline(always)]
     pub fn lock(&self) -> SpinMutexGuard<T> {
+        crate::print::raw_print_str("(lock) start\n");
         // Can fail to lock even if the spinlock is not locked. May be more efficient than `try_lock`
         // when called in a loop.
         loop {
@@ -251,6 +252,10 @@ impl<T: ?Sized, R> SpinMutex<T, R> {
     /// which can result in more efficient code on some platforms.
     #[inline(always)]
     pub fn try_lock_weak(&self) -> Option<SpinMutexGuard<T>> {
+        crate::print::raw_print_str("(try_lock_weak) start\n");
+        crate::print::raw_print_str("(try_lock_weak) self.lock: ");
+        crate::print::raw_print_hex(self.lock.load(Ordering::Relaxed) as usize);
+        crate::print::raw_print_str("\n");
         if self
             .lock
             .compare_exchange_weak(false, true, Ordering::Acquire, Ordering::Relaxed)

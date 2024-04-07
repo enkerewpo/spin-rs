@@ -17,6 +17,34 @@ pub fn __print_raw(s: &str) {
   }
 }
 
+#[no_mangle]
+/// print a string to uart with raw c function
+pub fn raw_print_str(s: &str) {
+  extern "C" {
+    fn print_char(c: u8);
+  }
+  for c in s.bytes() {
+    unsafe {
+      print_char(c);
+      if c == b'\n' {
+        print_char(b'\r');
+      }
+    }
+  }
+}
+
+#[no_mangle]
+pub fn raw_print_hex(val: usize) {
+  raw_print_str("0x");
+  for i in 0..16 {
+    let c = ((val >> (60 - i * 4)) & 0xf) as u8;
+    let c = if c < 10 { c + b'0' } else { c - 10 + b'A' };
+    unsafe {
+      raw_print_str(core::str::from_utf8_unchecked(&[c]));
+    }
+  }
+}
+
 struct Writer;
 
 impl Write for Writer {
